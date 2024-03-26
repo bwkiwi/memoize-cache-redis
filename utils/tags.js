@@ -48,8 +48,9 @@ Tags.prototype.getKeys = function getKeys (tags, next) {
   tags = Array.isArray(tags) ? tags : [tags]
   var that = this
   var getKeys = parallel(tags.map(function (tag) {
-    return function (cb) {
-      return that.client.smembers(that.prefixTags + tag, cb)
+    return async function (cb) {
+      if (await that.client.exists(that.prefixTags + tag))
+        return that.client.smembers(that.prefixTags + tag, cb)
     }
   }))
   getKeys(function (err, keysArray) {
